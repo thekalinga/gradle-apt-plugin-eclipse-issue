@@ -1,0 +1,92 @@
+buildscript {
+  ext {
+    springBootVersion = "2.0.1.RELEASE"
+  }
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "net.ltgt.gradle:gradle-apt-plugin:0.15"
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'net.ltgt.apt'
+apply plugin: 'net.ltgt.apt-eclipse'
+apply plugin: 'net.ltgt.apt-idea'
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+
+ext {
+  lombokVersion = '1.16.20'
+  mapstructVersion = '1.2.0.Final'
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
+
+dependencies {
+  compile("org.springframework.boot:spring-boot-starter")
+  compileOnly("org.projectlombok:lombok:${lombokVersion}")
+  annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+  testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+  compileOnly("org.mapstruct:mapstruct-jdk8:${mapstructVersion}")
+  compileOnly("org.mapstruct:mapstruct-processor:${mapstructVersion}")
+  annotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")
+  testAnnotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")
+}
+
+compileJava {
+  aptOptions.processorArgs += [
+      'mapstruct.suppressGeneratorTimestamp'         : 'true',
+      'mapstruct.suppressGeneratorVersionInfoComment': 'true',
+      'mapstruct.defaultComponentModel'              : 'spring'
+  ]
+}
+
+//eclipse {
+//	jdt {
+//	  apt {
+//		// whether annotation processing is enabled in Eclipse
+//		// (isAptEnabled in Kotlin)
+//		aptEnabled = compileJava.aptOptions.annotationProcessing
+//		// where Eclipse will output the generated sources; value is interpreted as per project.file()
+//		genSrcDir = file('.apt_generated')
+//		// whether annotation processing is enabled in the editor
+//		// (isReconcileEnabled in Kotlin)
+//		reconcileEnabled = true
+//		// a map of annotation processor options; a null value will pass the argument as -Akey rather than -Akey=value
+//		processorOptions = compileJava.aptOptions.processorArgs
+//
+//		file {
+//		  whenMerged { jdtApt ->
+//			// you can tinker with the JdtApt here
+//		  }
+//
+//		  withProperties { properties ->
+//			// you can tinker with the Properties here
+//		  }
+//		}
+//	  }
+//	}
+//
+//	factorypath {
+//	  plusConfigurations = [ configurations.apt, configurations.testApt ]
+//	  minusConfigurations = []
+//
+//	  file {
+//		whenMerged { factorypath ->
+//		  // you can tinker with the Factorypath here
+//		}
+//
+//		withXml { node ->
+//		  // you can tinker with the Node here
+//		}
+//	  }
+//	}
+//  }
